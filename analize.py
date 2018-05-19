@@ -61,11 +61,16 @@ def html_convert(file):
   soup = BeautifulSoup(html_doc, 'html.parser')
 
   for pl in soup.find_all():
-    line = pl.string
-    if not line == None:
-      if not is_valid_url(line):
-        pl.string = translate(line)
-        print(pl.string)
+    try:
+      if not pl.text == None:
+        if not is_valid_url(pl.text) and not pl.find('img'):
+          if pl.string == None:
+            pl.string = translate(pl.text)
+          else:
+            pl.string = translate(pl.string)
+          print(pl.string)
+    except Exception as e:
+      print("翻訳エラー発生。スキップします")
 
   html_doc = soup.prettify(formatter=None)
 

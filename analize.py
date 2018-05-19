@@ -48,7 +48,7 @@ def pickup_html(root_dir):
   for file in find_all_files(root_dir):
     if os.path.isfile(file) and os.path.splitext(file)[1] == '.html':
       files_path.append(file)
-  Parallel(n_jobs=16)([delayed(html_convert)(file_path) for file_path in files_path])
+  Parallel(n_jobs=64)([delayed(html_convert)(file_path) for file_path in files_path])
 
 
 def html_convert(file):

@@ -1,18 +1,17 @@
 '''
 方針
 ・epubファイルを展開
-・textフォルダ以下のhtmlファイルを読み込み
-・pタグを抽出して翻訳→置き換え
+・フォルダ以下のhtmlファイルを読み込み
+・文字要素を抽出して翻訳→置き換え
 ・全置換え後上書き保存
-・fontsフォルダのttfファイルを置き換え
 ・再ZIP化
 '''
 from googletrans import Translator
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
 import os
+import sys
 import zipfile
-import epub
 import datetime
 import shutil
 import re
@@ -103,5 +102,10 @@ def find_all_files(directory):
             yield os.path.join(root, file)
 
 if __name__ == '__main__':
-  epub_path = input("変換対象のepubファイルのパスを入力してください：")
-  extract_epub(epub_path)
+  argvs = sys.argv
+  if argvs[0] == '':
+    epub_path = input("変換対象のepubファイルのパスを入力してください：")
+    extract_epub(epub_path)
+  else:
+    for arg in argvs:
+      extract_epub(arg)

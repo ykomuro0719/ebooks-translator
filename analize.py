@@ -37,17 +37,18 @@ def extract_epub(epub_path):
 
     print(f'{dest_name}.epub　翻訳が完了しました。')
     return True
-  except exception as e:
+  except Exception as e:
     print(e)
     return False
   finally:
     shutil.rmtree(temp_dir)
-
+    
 # 変換対象のhtmlファイルを抽出
 def pickup_html(root_dir):
-  text_dir=f'{root_dir}/text'
-  files = os.listdir(text_dir)
-  files_path = [f'{text_dir}/{file}' for file in files]
+  files_path = []
+  for file in find_all_files(root_dir):
+    if os.path.isfile(file) and os.path.splitext(file)[1] == '.html':
+      files_path.append(file)
   Parallel(n_jobs=16)([delayed(html_convert)(file_path) for file_path in files_path])
 
 
@@ -94,6 +95,12 @@ def is_valid_url(url):
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
     return url is not None and regex1.search(url) or regex2.search(url)
+
+def find_all_files(directory):
+    for root, dirs, files in os.walk(directory):
+        yield root
+        for file in files:
+            yield os.path.join(root, file)
 
 if __name__ == '__main__':
   epub_path = input("変換対象のepubファイルのパスを入力してください：")

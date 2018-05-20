@@ -15,6 +15,7 @@ import zipfile
 import datetime
 import shutil
 import re
+import calibre
 
 def extract_epub(epub_path):
   if not zipfile.is_zipfile(epub_path):
@@ -35,7 +36,7 @@ def extract_epub(epub_path):
     os.rename(f'{dest_name}.zip',f'{dest_name}.epub')
 
     print(f'{dest_name}.epub　翻訳が完了しました。')
-    return True
+    return f'{dest_name}.epub'
   except Exception as e:
     print(e)
     return False
@@ -106,11 +107,48 @@ def find_all_files(directory):
         for file in files:
             yield os.path.join(root, file)
 
+def setup(src,dest_ext):
+  src_ext = os.path.splitext(src)[1]
+  src_base = os.path.splitext(src)[0]
+
+  if src_ext == '.epub' and dest_ext == '.epub':
+    extract_epub(src)
+
+  elif src_ext == '.epub' and dest_ext != '.epub':
+    translated = extract_epub(src)
+    translated_base = os.path.splitext(translated)[0]
+    calibre.convert_frm_epub(translated,f'{translated_base}{dest_ext}')
+
+  elif src_ext != '.epub' and dest_ext == '.epub':
+    converted = calibre.convert2epub(src,f'{src_base}.epub')
+    extract_epub(converted)
+
+  elif src_ext != '.epub' and dest_ext != '.epub':
+    converted = calibre.convert2epub(src,f'{src_base}.epub')
+    translated = extract_epub(converted)
+    translated_base = os.path.splitext(translated)[0]
+    calibre.convert_frm_epub(translated,f'{translated_base}{dest_ext}')
+
+  return None
+
 if __name__ == '__main__':
   argvs = sys.argv
-  if argvs[0] == '':
-    epub_path = input("変換対象のepubファイルのパスを入力してください：")
-    extract_epub(epub_path)
+  if len(argvs) == 1:
+    src_path = input("変換対象のファイルのパスを入力してください：")
+    print("出力形式を選択してください")
+    ext_no = input("0:PDF 1:EPUB 2:MOBI：")
+    if not int(ext_no) in [0,1,2]:
+      print("適切な入力でありません")
+      exit()
+    else:
+      ext = ['.pdf','.epub','.mobi']
+      setup(src_path,ext[int(ext_no)])
+
   else:
     for arg in argvs:
-      extract_epub(arg)
+      ext = os.path.splitext(arg)[0]
+      if ext in ['.pdf','.epub','.mobi']:
+        setup(arg,ext)
+      else:
+        print("適切な入力でありません")
+        exit()

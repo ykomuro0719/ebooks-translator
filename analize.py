@@ -34,7 +34,6 @@ def extract_epub(epub_path):
     dest_name = f'[translated]{os.path.basename(os.path.splitext(epub_path)[0])}'
     shutil.make_archive(dest_name, 'zip', root_dir=temp_dir)
     os.rename(f'{dest_name}.zip',f'{dest_name}.epub')
-
     print(f'{dest_name}.epub　翻訳が完了しました。')
     return f'{dest_name}.epub'
   except Exception as e:
@@ -47,7 +46,7 @@ def extract_epub(epub_path):
 def pickup_html(root_dir):
   files_path = []
   for file in find_all_files(root_dir):
-    if os.path.isfile(file) and os.path.splitext(file)[1] == '.html':
+    if os.path.isfile(file) and os.path.splitext(file)[1] in ['.html','.xhtml']:
       files_path.append(file)
   Parallel(n_jobs=64)([delayed(html_convert)(file_path) for file_path in files_path])
 
